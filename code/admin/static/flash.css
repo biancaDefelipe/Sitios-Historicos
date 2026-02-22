@@ -1,0 +1,41 @@
+.flash {
+    border: 2px solid #ccc; 
+    padding: 1rem; 
+    border-radius: 5px; 
+    margin-bottom: 1rem; 
+}
+.flash.success {
+    border-color: #2D764D;
+    background-color: #DFF0D8;
+    color: #3C763D;
+}
+.flash.error {
+    border-color: #D9534F;
+    background-color: #F2DEDE; 
+    color: #A94442;
+}
+.flash.warning {
+    border-color: #F0AD4E;
+    background-color: #FCF8E3; 
+    color: #8A6D3B;
+}
+.flash.info {
+    border-color: #31708F;
+    background-color: #D9EDF7; 
+    color: #31708F;
+}
+.flash header strong{
+    font-weight: bold; 
+    text-transform: uppercase;
+}
+
+.flash{
+    opacity: 0; 
+    animation: fadeIn in 1s forwards; 
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1; 
+    }
+}

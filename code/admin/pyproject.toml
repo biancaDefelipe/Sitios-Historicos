@@ -1,0 +1,70 @@
+[project]
+name = "web"
+version = "1.0.0"
+description = ""
+authors = [
+    {name = "Bianca Defelipe",email = "biancadef03@gmail.com"},
+    {name = "Nabila Garcia",email = "litakiun2@gmail.com"},
+    {name = "Javier Vegas",email = "mjavivegas2@gmail.com"},
+    {name = "Santiago Samudio",email = "santisamudioo@gmail.com"},
+    {name = "Malena Sumie Kairiyama", email = "malenakairiyamas@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4"
+dependencies = [
+    "flask (>=3.1.2,<4.0.0)",
+    "markupsafe (>=3.0.2,<4.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "flask-sqlalchemy-lite (>=0.1.0,<0.2.0)",
+    "flask-session (>=0.8.0,<0.9.0)",
+    "bcrypt (>=4.3.0,<5.0.0)",
+    "flask-caching (>=2.3.1,<3.0.0)",
+    "geoalchemy2 (>=0.18.0,<0.19.0)",
+    "shapely (>=2.1.2,<3.0.0)",
+    "markupsafe (>=3.0.2,<4.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "flask-wtf (>=1.2.2,<2.0.0)",
+    "python-slugify (>=8.0.4,<9.0.0)",
+    "flask-jwt-extended (>=4.7.1,<5.0.0)",
+    "marshmallow (>=4.0.1,<5.0.0)",
+    "minio (>=7.2.18,<8.0.0)",
+    "flask-cors (>=6.0.1,<7.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "web", from = "src"}]
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
+
+
+[tool.poetry.group.dev.dependencies]
+python-dotenv = "^1.1.1"
+black = "^25.1.0"
+interrogate = "^1.7.0"
+pycodestyle = "^2.14.0"
+vulture = "^2.14"
+flake8 = "^7.3.0"
+
+[tool.interrogate]
+# Umbral mínimo de cobertura de docstrings
+fail-under = 80.0
+# Ignorar métodos/archivos comunes que no se documentan típicamente.
+ignore-init-method = true
+ignore-init-module = true
+ignore-private = true
+ignore-magic = true
+ignore-semiprivate = true
+exclude = [
+  "tests",
+  "venv",
+  "**/__pycache__/**",
+]
+color = true
+verbose = 1
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

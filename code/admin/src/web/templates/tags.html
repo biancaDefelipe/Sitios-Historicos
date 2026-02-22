@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Tags - Sitios Históricos{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold text-[#001F3F]">Gestión de Tags</h1>
+    <p class="text-gray-600 mt-2">Clasificación y gestión de etiquetas para Sitios Históricos</p>
+  </header>
+
+
+  <main class="bg-white rounded border border-gray-300 shadow-sm p-4 sm:p-6">
+    <section class="w-full mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <form method="GET" action="{{ url_for('tags.index') }}" class="w-full md:flex-1">
+          <label for="search" class="sr-only">Buscar tags</label>
+          <div class="flex">
+            <input id="search" name="q" type="search" value="{{ request.args.get('q','') }}"
+                   placeholder="Buscar tags por nombre..."
+                   class="w-full p-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-[#1C453A]">
+            <button type="submit" aria-label="Buscar tags"
+                    class="px-4 bg-[#1C453A] text-white rounded-r hover:bg-[#0B2F3A] transition">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </form>
+
+        <div class="flex items-center gap-3">
+          <button id="btn-open-add" class="inline-flex items-center px-4 py-2 bg-[#1C453A] text-white rounded hover:bg-[#0B2F3A] transition" aria-haspopup="dialog">
+            <i class="fas fa-plus mr-2"></i> Añadir Tag
+          </button>
+
+          <form method="GET" action="{{ url_for('tags.index') }}" class="inline-flex items-center gap-2">
+            <input type="hidden" name="q" value= "{{ q }}">
+            <label for="order" class="sr-only">Ordenar</label>
+            <select id="order" name="order" onchange="this.form.submit()" class="border px-2 py-1 rounded focus:ring-2 focus:ring-[#1C453A]">
+              <option value="fecha_desc" {% if order == 'fecha_desc' %}selected{% endif %}>Fecha (más recientes)</option>
+              <option value="fecha_asc" {% if order == 'fecha_asc' %}selected{% endif %}>Fecha (más antiguos)</option>
+              <option value="name_desc" {% if order == 'name_desc' %}selected{% endif %}>Nombre (Z-A)</option>
+              <option value="name_asc" {% if order == 'name_asc' %}selected{% endif %}>Nombre (A-Z)</option>              
+            </select>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="overflow-x-auto w-full">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-[#0B2F3A] text-white">
+          <tr>
+            <th class="px-4 py-3 text-left text-sm font-medium">Nombre</th>
+            <th class="px-4 py-3 text-left text-sm font-medium">Slug</th>
+            <th class="px-4 py-3 text-left text-sm font-medium">Fecha-Hora Alta</th>
+            <th class="px-4 py-3 text-center text-sm font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-100">
+          {% for tag in tags %}
+            <tr>
+              <td class="px-4 py-3 text-sm text-[#001F3F] font-medium">{{ tag.nombre }}</td>
+              <td class="px-4 py-3 text-sm text-gray-700">{{ tag.slug }}</td>
+              <td class="px-4 py-3 text-sm text-gray-600">
+                {{ tag.fecha_hora_alta.strftime('%Y-%m-%d %H:%M') if tag.fecha_hora_alta else '' }}
+              </td>
+              <td class="px-4 py-3 text-center space-x-2">
+                <!-- Editar -->
+                <button type="button"
+                        data-id="{{ tag.id_tag }}"
+                        data-name="{{ tag.nombre }}"
+                        class="btn-edit-tag inline-flex items-center px-3 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+
+                <!-- Eliminar -->
+                <button type="button"
+                        data-id="{{ tag.id_tag }}"
+                        data-name="{{ tag.nombre }}"
+                        class="btn-delete-tag inline-flex items-center px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="py-8 text-center text-gray-500">No hay tags disponibles.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+
+    {% if pagination and pagination['total_pages'] > 1 %}
+      <nav class="flex items-center justify-between mt-6" aria-label="Paginación">
+        <div class="text-sm text-gray-600">
+          Página {{ pagination['page'] }} de {{ pagination['total_pages'] }} — {{ pagination['total'] }} tags
+        </div>
+
+        <ul class="inline-flex items-center space-x-2">
+          {% if pagination['has_prev'] %}
+            <li>
+              <a href="{{ url_for('tags.index', page=(pagination['page'] - 1), q=request.args.get('q',''), order=request.args.get('order','fecha_desc')) }}" class="px-3 py-1 bg-[#1C453A] text-white rounded hover:bg-[#0B2F3A]">«</a>
+            </li>
+          {% endif %}
+          {% for p in range(1, pagination['total_pages'] + 1) %}
+            <li>
+              <a href="{{ url_for('tags.index', page=p, q=request.args.get('q',''), order=request.args.get('order','fecha_desc')) }}"
+                 class="px-3 py-1 {% if p == pagination['page'] %}bg-[#0B2F3A]{% else %}bg-[#1C453A] hover:bg-[#0B2F3A]{% endif %} text-white rounded">
+                {{ p }}
+              </a>
+            </li>
+          {% endfor %}
+          {% if pagination['has_next'] %}
+            <li>
+              <a href="{{ url_for('tags.index', page=(pagination['page'] + 1), q=request.args.get('q',''), order=request.args.get('order','fecha_desc')) }}" class="px-3 py-1 bg-[#1C453A] text-white rounded hover:bg-[#0B2F3A]">»</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </main>
+</div>
+
+
+<div id="modal-delete" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+  <div id="modal-delete-content" class="bg-white rounded-lg shadow-lg w-96 p-6 transform scale-90 opacity-0 transition-all duration-200 ease-out">
+    <h2 class="text-lg font-semibold text-[#001F3F] mb-4">Confirmar eliminación</h2>
+    <p id="delete-message" class="text-gray-700 mb-6">¿Seguro que deseas eliminar este tag?</p>
+    <div class="flex justify-end gap-3">
+      <button id="btn-cancel-delete" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Cancelar</button>
+      <button id="btn-confirm-delete" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-500">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="modal-add" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+  <div id="modal-add-content" class="bg-white rounded-lg shadow-lg w-96 p-6 transform scale-90 opacity-0 transition-all duration-200 ease-out">
+    <h2 class="text-lg font-semibold text-[#001F3F] mb-4">Crear nuevo Tag</h2>
+
+
+    <label for="input-new-tag" class="sr-only">Nombre del tag</label>
+    <input id="input-new-tag" type="text" placeholder="Nombre del tag (3-50 caracteres)"
+           class="w-full border px-3 py-2 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-[#1C453A]">
+    <p id="input-new-tag-error" class="text-red-600 text-sm mb-2 hidden" role="alert"></p>
+
+    <div class="flex justify-end gap-3">
+      <button id="btn-cancel-add" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Cancelar</button>
+      <button id="btn-confirm-tag" class="px-4 py-2 rounded bg-[#1C453A] text-white hover:bg-[#0B2F3A] disabled:opacity-50" type="button">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  function openModal(modalId, contentId) {
+    const modal = document.getElementById(modalId);
+    const content = document.getElementById(contentId);
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      content.classList.remove('scale-90', 'opacity-0');
+      content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+  }
+  function closeModal(modalId, contentId) {
+    const modal = document.getElementById(modalId);
+    const content = document.getElementById(contentId);
+    content.classList.remove('scale-100', 'opacity-100');
+    content.classList.add('scale-90', 'opacity-0');
+    setTimeout(() => modal.classList.add('hidden'), 200);
+  }
+  function localShow(message, type='error') {
+    if (typeof showFlash === 'function') {
+      showFlash(message, type === 'error' ? 'error' : (type === 'success' ? 'success' : 'info'));
+    } else {
+      const err = document.getElementById('input-new-tag-error');
+      if (err) {
+        err.textContent = message;
+        err.classList.remove('hidden');
+      } else {
+        console.warn(message);
+      }
+    }
+  }
+
+  let deleteId = null;
+  let editTagId = null;
+  const modalTitle = document.querySelector('#modal-add-content h2');
+
+  document.querySelectorAll('.btn-delete-tag').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      deleteId = btn.getAttribute('data-id');
+      const tagName = btn.getAttribute('data-name');
+      document.getElementById('delete-message').textContent = `¿Seguro que deseas eliminar el tag "${tagName}"?`;
+      openModal('modal-delete', 'modal-delete-content');
+    });
+  });
+    document.querySelectorAll('.btn-edit-tag').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+
+      editTagId = btn.getAttribute('data-id');
+      const tagName = btn.getAttribute('data-name');
+
+      modalTitle.textContent = 'Editar Tag';
+      inputNew.value = tagName;
+      inputError.classList.add('hidden');
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = 'Confirmar';
+
+      openModal('modal-add', 'modal-add-content');
+      inputNew.focus();
+    });
+  });
+
+
+  document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+    closeModal('modal-delete', 'modal-delete-content');
+  });
+
+  document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+    if (!deleteId) return;
+    try {
+      const res = await fetch(`/tags/borrar/${deleteId}`, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+
+        closeModal('modal-delete', 'modal-delete-content');
+        window.location.href = "{{ url_for('tags.index') }}"; 
+
+    } catch (err) {
+
+    closeModal('modal-delete', 'modal-delete-content');
+    window.location.href = "{{ url_for('tags.index') }}";
+    }
+  });
+
+  const btnOpenAdd = document.querySelector('#btn-open-add');
+  const inputNew = document.getElementById('input-new-tag');
+  const inputError = document.getElementById('input-new-tag-error');
+  const btnConfirm = document.getElementById('btn-confirm-tag');
+
+  function debounce(fn, wait=400){
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(()=>fn(...args), wait); };
+  }
+
+  function validateLocal(name) {
+    if (!name || name.trim().length === 0) {
+      return 'El nombre es obligatorio.';
+    }
+    if (name.trim().length < 3) return 'Mínimo 3 caracteres.';
+    if (name.trim().length > 50) return 'Máximo 50 caracteres.';
+    return null;
+  }
+
+
+function validateAndShow(name) {
+  inputError.classList.add('hidden');
+  btnConfirm.disabled = true;
+  const localErr = validateLocal(name);
+  if (localErr) {
+    inputError.textContent = localErr;
+    inputError.classList.remove('hidden');
+    btnConfirm.disabled = true;
+    return false;
+  }
+  btnConfirm.disabled = false;
+  return true;
+}
+
+
+  const debouncedValidate = debounce((val) => validateAndShow(val), 350);
+
+  if (btnOpenAdd) {
+
+    btnOpenAdd.addEventListener('click', e => {
+    e.preventDefault();
+    editTagId = null;
+    modalTitle.textContent = 'Crear nuevo Tag';
+    inputNew.value = '';
+    inputError.classList.add('hidden');
+    btnConfirm.disabled = true;
+    btnConfirm.textContent = 'Confirmar';
+    openModal('modal-add', 'modal-add-content');
+    inputNew.focus();
+});
+  }
+
+  inputNew.addEventListener('input', e => {
+    const val = e.target.value;
+    validateAndShow(val); 
+  });
+
+  document.getElementById('btn-cancel-add').addEventListener('click', () => {
+    closeModal('modal-add', 'modal-add-content');
+  });
+
+      btnConfirm.addEventListener('click', async () => {
+      const name = inputNew.value.trim();
+      inputError.classList.add('hidden');
+
+      const localErr = validateLocal(name);
+      if (localErr) {
+        inputError.textContent = localErr;
+        inputError.classList.remove('hidden');
+        return;
+      }
+
+      btnConfirm.disabled = true;
+      btnConfirm.textContent = editTagId ? 'Guardando...' : 'Creando...';
+
+      try {
+        const url = editTagId
+          ? `/tags/editar/${editTagId}`
+          : `/tags/crear`;
+
+        const method = editTagId ? 'PUT' : 'POST';
+
+        await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ nombre: name })
+        });
+
+        closeModal('modal-add', 'modal-add-content');
+        window.location.href = "{{ url_for('tags.index') }}";
+
+      } catch (err) {
+        closeModal('modal-add', 'modal-add-content');
+        window.location.href = "{{ url_for('tags.index') }}";
+      } finally {
+        btnConfirm.disabled = false;
+        btnConfirm.textContent = 'Confirmar';
+        editTagId = null;
+        modalTitle.textContent = 'Crear nuevo Tag';
+      }
+    });
+
+
+
+});
+</script>
+{% endblock %}

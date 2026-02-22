@@ -1,0 +1,27 @@
+{# 
+  Componente reutilizable para mostrar el badge de estado del usuario.
+  
+  Parámetros:
+    - activo: Boolean - True si el usuario está activo, False si está inactivo
+    - size: String (opcional) - 'sm' para pequeño, 'md' para mediano (default: 'md')
+  
+  Uso:
+    {% include 'components/usuario_badge_estado.html' with context %}
+    O con parámetros:
+    {% with activo=usuario.activo, size='sm' %}
+      {% include 'components/usuario_badge_estado.html' %}
+    {% endwith %}
+#}
+{% if activo %}
+  <span class="inline-flex items-center 
+    {% if size == 'sm' %}px-2.5 py-0.5 text-xs{% else %}px-3 py-1 text-sm{% endif %} 
+    rounded-full font-medium bg-green-100 text-green-800">
+    Activo
+  </span>
+{% else %}
+  <span class="inline-flex items-center 
+    {% if size == 'sm' %}px-2.5 py-0.5 text-xs{% else %}px-3 py-1 text-sm{% endif %} 
+    rounded-full font-medium bg-red-100 text-red-800">
+    Inactivo
+  </span>
+{% endif %}

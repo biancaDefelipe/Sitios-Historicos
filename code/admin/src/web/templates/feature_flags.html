@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Feature Flags - Aplicación Histórica{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-[#001F3F]">Feature Flags</h1>
+    <p class="text-gray-600 mt-2">Panel de control para activar/desactivar funcionalidades del sistema</p>
+  </div>
+
+
+
+  <div class="bg-white rounded border border-gray-300 shadow-sm overflow-hidden">
+    <div class="bg-[#0B2F3A] text-white px-6 py-4">
+      <h2 class="text-xl font-semibold">Configuración de Funcionalidades</h2>
+    </div>
+
+    <div class="divide-y divide-gray-200">
+      {% for flag_info in flags_data %}
+        {% set flag = flag_info.flag %}
+        <div class="px-6 py-5 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+          
+
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-[#001F3F] mb-1">
+              {{ flag.nombre.replace('_', ' ').title() }}
+            </h3>
+            <p class="text-gray-600 text-sm mb-3">{{ flag.descripcion }}</p>
+
+
+            <div class="mb-3">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                {% if flag.estado %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                {% if flag.estado %}
+                  <i class="fas fa-check-circle mr-1"></i>Activo
+                {% else %}
+                  <i class="fas fa-times-circle mr-1"></i>Inactivo
+                {% endif %}
+              </span>
+            </div>
+
+
+            {% if flag_info.ultima_modificacion %}
+            <div class="text-sm text-gray-500 flex flex-wrap items-center gap-4">
+              <span><i class="fas fa-clock mr-1"></i>{{ flag_info.ultima_modificacion.fecha_hora_modificacion.strftime('%d/%m/%Y %H:%M') }}</span>
+              <span><i class="fas fa-user mr-1"></i>{{ flag_info.usuario_modificacion }}</span>
+            </div>
+            {% endif %}
+
+
+            {% if flag.estado and flag.mensaje_mantenimiento and 'mantenimiento' in flag.nombre %}
+              <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                <p class="text-sm text-yellow-800">
+                  <strong>Mensaje:</strong> {{ flag.mensaje_mantenimiento }}
+                </p>
+              </div>
+            {% endif %}
+          </div>
+
+
+          <div class="w-full lg:w-80">
+            <form method="POST"
+                  id="form-{{ flag.nombre }}"
+                  action="{{ url_for('feature_flags.toggle_flag', nombre=flag.nombre) }}"
+                  class="space-y-4">
+              
+              <input type="hidden"
+                name="estado"
+                id="estado-hidden-{{ flag.nombre }}"
+                value="{{ 'true' if flag.estado else 'false' }}">
+
+              <div class="flex items-center">
+                <input type="checkbox" value="on" id="estado-checkbox-{{ flag.nombre }}" 
+                       {% if flag.estado %}checked{% endif %}
+                       class="mr-2 h-4 w-4 text-[#1C453A] focus:ring-[#1C453A] border-gray-300 rounded">
+                <label for="estado-checkbox-{{ flag.nombre }}" class="font-medium text-sm">
+                  Habilitada
+                </label>
+              </div>
+
+
+              {% if 'mantenimiento' in flag.nombre %}
+              <div class="flex flex-col">
+                <label for="mensaje-{{ flag.nombre }}" class="block text-sm font-medium text-gray-700 mb-1">
+                  Mensaje de mantenimiento:
+                </label>
+                <textarea name="mensaje_mantenimiento" id="mensaje-{{ flag.nombre }}" 
+                          rows="2" maxlength="100"
+                          class="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-[#1C453A] resize-none"
+                          placeholder="Mensaje para mostrar durante el mantenimiento...">{{ flag.mensaje_mantenimiento or '' }}</textarea>
+              </div>
+              {% endif %}
+
+              <button type="button" 
+                      data-modal-trigger="modal-{{ flag.nombre }}"
+                      class="w-full md:w-auto px-4 py-2 bg-[#1C453A] text-white rounded hover:bg-[#0B2F3A] transition-colors">
+                <i class="fas fa-save mr-1"></i>Actualizar
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div id="modal-{{ flag.nombre }}" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div class="bg-white rounded-lg shadow-lg w-11/12 sm:w-96 p-6 text-center">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Confirmar Actualización</h3>
+            <p class="text-gray-600 mb-6">¿Estás seguro de que quieres actualizar el estado de este feature flag?</p>
+            <div class="flex justify-center space-x-4">
+              <button data-modal-cancel="modal-{{ flag.nombre }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Cancelar</button>
+              <button data-modal-confirm="form-{{ flag.nombre }}" class="px-4 py-2 bg-[#1C453A] text-white rounded hover:bg-[#0B2F3A]">Confirmar</button>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modalTriggers = document.querySelectorAll('[data-modal-trigger]');
+  
+  modalTriggers.forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const modalId = trigger.getAttribute('data-modal-trigger');
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('hidden');
+      }
+    });
+  });
+
+  const modalCancels = document.querySelectorAll('[data-modal-cancel]');
+
+  modalCancels.forEach(cancel => {
+    cancel.addEventListener('click', () => {
+      const modalId = cancel.getAttribute('data-modal-cancel');
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  });
+
+  const modalConfirms = document.querySelectorAll('[data-modal-confirm]');
+
+  modalConfirms.forEach(confirm => {
+    confirm.addEventListener('click', () => {
+      const formId = confirm.getAttribute('data-modal-confirm');
+      const form = document.getElementById(formId);
+      if (form) {
+        form.submit();
+      }
+    });
+  });
+
+  document.querySelectorAll('.fixed.inset-0').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  });
+
+  document.querySelectorAll('[id^="estado-checkbox-"]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      const hiddenId = checkbox.id.replace('checkbox', 'hidden');
+      const hiddenInput = document.getElementById(hiddenId);
+
+      if (hiddenInput) {
+        hiddenInput.value = checkbox.checked ? 'true' : 'false';
+      }
+    });
+  });
+
+});
+</script>
+
+{% endblock %}

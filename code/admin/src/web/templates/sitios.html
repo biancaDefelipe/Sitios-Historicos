@@ -1,0 +1,147 @@
+
+{% extends 'base.html' %}
+{% block title %}Sitios Históricos{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-2 py-4 md:px-4 md:py-6">
+    
+    <h2 class="mb-8 text-center text-3xl font-bold text-[#001F3F]">Gestión de Sitios Históricos</h2>
+    
+
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+        <h3 class="font-bold text-[#001F3F] text-lg">Filtros de búsqueda</h3>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" id="applyFiltersBtn" class="bg-[#1C453A] hover:bg-[#92A79C] text-[#F5F5F5] px-4 py-2 rounded-lg flex items-center justify-center whitespace-nowrap">
+                <i class="fas fa-filter mr-2"></i>Aplicar filtros
+            </button>
+            <button type="button" id="clearFiltersBtn" class="bg-[#008B8B] hover:bg-[#0B2F3A] text-white px-4 py-2 rounded-lg flex items-center justify-center whitespace-nowrap">
+                <i class="fas fa-eraser mr-2"></i>Limpiar filtros
+            </button>
+        </div>
+    </div>
+
+    <form id="searchForm" class="mb-6">
+        <div class="flex flex-col gap-2 w-full">
+            <h4 class="mb-2 text-[#001F3F]">Nombre o Descripcion Breve</h4>
+            <input type="text" id="searchInput" name="q" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#008B8B] bg-white text-[#001F3F]" placeholder="Ingresar Nombre o Descripcion breve...">
+        </div>
+    </form>
+    <div id="filters" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+  
+        <div>
+            <h4 class="mb-2 text-[#001F3F]">Ciudad</h4>
+            <input id="ciudadFilter" type="text" placeholder="Ingresar Ciudad..." class="w-full border rounded-lg px-3 py-2">
+        </div>
+
+
+        <div>
+            <h4 class="mb-2 text-[#001F3F]">Provincia</h4>
+            <select id="provinciaFilter" class="w-full border rounded-lg px-3 py-2">
+                <option value="">Seleccionar Provincia...</option>
+            </select>
+        </div>
+
+
+        <div>
+            <h4 class="mb-2 text-[#001F3F]">Categoría</h4>
+            <select id="categoriaFilter" class="w-full border rounded-lg px-3 py-2">
+                <option value="">Seleccionar Categoría...</option>
+            </select>
+        </div>
+
+        <div>
+            <h4 class="mb-2 text-[#001F3F]">Estado de Conservación</h4>
+            <select id="estadoFilter" class="w-full border rounded-lg px-3 py-2">
+                <option value="">Seleccionar Estado...</option>
+            </select>
+        </div>
+
+        <div>
+            <h4 class="mb-2 text-[#001F3F]">Etiqueta (Tag)</h4>
+            <select id="tagFilter" class="w-full border rounded-lg px-3 py-2">
+                <option value="">Seleccionar Tag...</option>
+            </select>
+        </div>
+
+
+        <div>
+            <h4 class="mb-2 text-[#001F3F]">Visibilidad</h4>
+            <select id="visibilidadFilter" class="w-full border rounded-lg px-3 py-2">
+                <option value="">Seleccionar Visibilidad...</option>
+                <option value="true">Es visible</option>
+                <option value="false">No es visible</option>
+            </select>
+        </div>
+
+
+        <div class="col-span-1 sm:col-span-2 lg:col-span-2">
+            <h4 class="mb-2 text-[#001F3F]">Período de Registro (Desde - Hasta)</h4>
+            <div class="flex gap-3 justify-center items-center">
+                <input type="date" id="fechaDesdeFilter" class="input-error w-1/2 border rounded-lg px-3 py-2" placeholder="Fecha desde...">
+                <label class="mb-2 text-[#001F3F]">-</label>
+                <input type="date" id="fechaHastaFilter" class="input-error w-1/2 border rounded-lg px-3 py-2" placeholder="Fecha hasta...">
+            </div>
+            <p id="fechaError" class="hidden text-red-500 text-sm mt-1"></p>
+        </div>
+
+
+        <div>
+            <h4 class="mb-2 text-[#001F3F]">Ordenar por</h4>
+            <select id="orderSelect" class="w-full border rounded-lg px-3 py-2">
+                <option value="fecha_desc">Fecha Registro Desc</option>
+                <option value="fecha_asc">Fecha Registro Asc</option>
+                <option value="nombre_asc">Nombre A-Z</option>
+                <option value="nombre_desc">Nombre Z-A</option>
+                <option value="ciudad_asc">Ciudad A-Z</option>
+                <option value="ciudad_desc">Ciudad Z-A</option>
+            </select>
+        </div>
+    </div>
+
+
+    <div class="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+        <button id="exportarCsv" type="button" class="bg-[#1C453A] hover:bg-[#92A79C] text-[#F5F5F5] px-4 py-2 rounded-lg flex items-center justify-center">
+            <i class="fas fa-file-export mr-2"></i>Exportar sitios
+        </button>
+        <a href="/sitios/crear" class="bg-[#008B8B] hover:bg-[#0B2F3A] text-white px-4 py-2 rounded-lg flex items-center justify-center">
+            <i class="fas fa-plus mr-2"></i>Registrar nuevo sitio
+        </a>
+        <a href="{{ url_for('sites.historial_general') }}" class="bg-[#2C3E50] hover:bg-[#34495e] text-white px-4 py-2 rounded-lg flex items-center justify-center">
+            <i class="fas fa-history mr-2"></i>Historial de Modificaciones
+        </a>
+    </div>
+    <p id="exportarError" class="hidden text-red-500 text-sm mt-1 mb-4"></p>
+
+    <div id="sitios-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    </div>
+        <nav id="pagination" aria-label="Paginación" class="mt-6"></nav>
+
+        <div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h3 class="text-lg font-bold mb-4 text-[#0B2F3A]">¿Eliminar sitio?</h3>
+                <p class="mb-6 text-gray-700">¿Estás seguro que deseas eliminar este sitio histórico? Esta acción no se puede deshacer.</p>
+                <form id="deleteForm" method="POST">
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeDeleteModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Cancelar</button>
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+                <div id="viewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
+                        <button type="button" onclick="closeViewModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"><i class="fas fa-times fa-lg"></i></button>
+                        <h3 id="viewModalTitle" class="text-xl font-bold mb-4 text-[#0B2F3A]">Detalles del sitio histórico</h3>
+                        <div id="viewModalContent" class="mb-4 text-[#001F3F]"></div>
+                        <div id="viewMap" class="w-full h-64 rounded border"></div>
+                    </div>
+                </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/sitios.js') }}"></script>
+{% endblock %}
+

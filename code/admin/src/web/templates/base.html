@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplicación Histórica</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+  <link rel="stylesheet" href="/static/flash.css"> 
+
+</head>
+<body class="h-screen flex flex-col bg-[#F5F5F5]">
+
+  <header class="flex items-center justify-between bg-[#0B2F3A] px-4 py-2">
+    <div class="flex items-center space-x-3">
+      <button id="menu-btn" class="md:hidden text-white focus:outline-none">
+        ☰
+      </button>
+      <i class="fas fa-landmark text-white text-2xl"></i>
+      <span class="text-white font-bold text-lg">Aplicación Histórica</span>
+    </div>
+
+    <div class="relative">
+      <button id="user-menu-btn" class="flex items-center space-x-2 bg-gray-800 px-3 py-1 rounded hover:bg-[#008B8B] hover:text-white text-white">
+        <span>Cuenta</span>
+        <i class="fas fa-chevron-down text-white"></i>
+      </button>
+      <div id="user-menu" class="absolute right-0 mt-2 w-40 bg-white border rounded shadow hidden">
+        {% if esta_autenticado() %}
+          <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 hover:bg-gray-100 text-black">Cerrar sesión</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="block px-4 py-2 hover:bg-gray-100 text-black">Iniciar sesión</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <div class="flex flex-1">
+    <aside id="sidebar" class="fixed md:static top-0 left-0 h-full w-64 bg-[#1C453A] transform -translate-x-full md:translate-x-0 z-20">
+      <nav class="p-4 space-y-2 text-[#F5F5F5]">
+        <a href="/sitios" class="block p-2 rounded hover:bg-[#92A79C] hover:text-[#001F3F]">Gestión de sitios históricos</a>
+        <a href="{{ url_for('resenias.index') }}" class="block p-2 rounded hover:bg-[#92A79C] hover:text-[#001F3F]">Moderación de reseñas</a>
+        <a href="{{ url_for('auth.listar_usuarios') }}" class="block p-2 rounded hover:bg-[#92A79C] hover:text-[#001F3F]">Gestión de usuarios</a>
+        {% if es_admin() %}
+          <a href="{{ url_for('feature_flags.index') }}" class="block p-2 rounded hover:bg-[#92A79C] hover:text-[#001F3F]">
+            Feature Flags
+          </a>
+        {% endif %}
+          <button type="button"
+                  onclick="window.location.href= /tags/"
+                  class="block p-2 rounded hover:bg-[#92A79C] hover:text-[#001F3F]"
+                  aria-label="Gestión de Tags">
+            Gestión de Tags
+          </button>
+
+      </nav>
+    </aside>
+
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-10 md:hidden"></div>
+
+    <main class="flex-1 p-6 overflow-y-auto bg-[#F5F5F5]">
+      {% include 'components/flash_messages.html' %}
+      {% block content %}
+      <h1 class="text-2xl font-semibold text-[#001F3F]">Contenido de la Aplicación Histórica</h1>
+      <div class="mt-6 p-4 bg-white rounded border border-gray-300">
+          <h2 class="text-xl font-semibold text-[#001F3F] mb-2">Sección de Ejemplo</h2>
+      </div>
+      {% endblock %}
+    </main>
+  </div>
+
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const userMenu = document.getElementById('user-menu');
+
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+
+    userMenuBtn.addEventListener('click', () => {
+      userMenu.classList.toggle('hidden');
+    });
+    
+    document.addEventListener('click', (event) => {
+      if (!userMenuBtn.contains(event.target) && !userMenu.contains(event.target)) {
+        userMenu.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

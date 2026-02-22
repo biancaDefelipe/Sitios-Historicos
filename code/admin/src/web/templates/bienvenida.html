@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col items-center justify-center h-[60vh]">
+  {% if email %}
+    <h1 id="bienvenida-msg" class="text-4xl sm:text-5xl font-bold text-[#008B8B] opacity-0 translate-y-16 mb-4">
+      Bienvenido {{ email }}!
+    </h1>
+  {% else %}
+    <h1 id="bienvenida-msg" class="text-4xl sm:text-5xl font-bold text-gray-500 opacity-0 translate-y-16 mb-4">
+      Bienvenido a la aplicación histórica. 
+        </h1>
+      <h2 id="bienvenida-sub" class="text-4xl sm:text-5xl font-bold text-gray-500 opacity-0 translate-y-16 mb-4">Por favor inicia sesión para continuar.</h2>
+
+  {% endif %}
+</div>
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    const msg = document.getElementById('bienvenida-msg');
+    const sub =document.getElementById('bienvenida-sub'); 
+    setTimeout(() => {
+      msg.classList.remove('opacity-0', 'translate-y-16');
+      msg.classList.add('opacity-100', 'translate-y-0');
+      sub.classList.remove('opacity-0', 'translate-y-16');
+      sub.classList.add('opacity-100', 'translate-y-0');
+    }, 200);
+  });
+</script>
+<style>
+  #bienvenida-msg {
+    transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+  }
+  #bienvenida-msg.opacity-0 {
+    opacity: 0;
+    transform: translateY(4rem);
+  }
+  #bienvenida-msg.opacity-100 {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  #bienvenida-sub{
+    transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+    font-size: 1.75rem;
+  }
+  #bienvenida-sub.opacity-0 {
+    opacity: 0;
+    transform: translateY(4rem);
+  }
+  #bienvenida-sub.opacity-100 {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+
+</style>
+{% endblock %}

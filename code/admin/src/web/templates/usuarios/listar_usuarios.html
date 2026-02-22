@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+  <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div>
+        <h2 class="text-xl font-semibold text-[#001F3F]">Gestión de Usuarios</h2>
+        <p class="text-sm text-gray-500 mt-1">Lista de usuarios registrados en el sistema</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="{{ url_for('auth.nuevo_usuario') }}" 
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Nuevo Usuario
+        </a>
+        <button onclick="location.reload()" 
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Actualizar
+        </button>
+      </div>
+    </div>
+
+
+
+    <div class="bg-gray-50 p-4 rounded-lg border mb-6">
+      <form method="GET" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Buscar por email</label>
+            <input type="text" id="email" name="email" value="{{ filtro_email or '' }}"
+                   placeholder="Ingrese email..."
+                   class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label for="activo" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <select id="activo" name="activo"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+              <option value="">Todos</option>
+              <option value="true" {% if filtro_activo == 'true' %}selected{% endif %}>Activos</option>
+              <option value="false" {% if filtro_activo == 'false' %}selected{% endif %}>Inactivos</option>
+            </select>
+          </div>
+ 
+          <div>
+            <label for="id_rol" class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+            <select id="id_rol" name="id_rol"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+              <option value="">Todos los roles</option>
+              {% for rol in roles %}
+                <option value="{{ rol.id_rol }}" {% if filtro_id_rol == rol.id_rol %}selected{% endif %}>
+                  {{ rol.descripcion }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="orden" class="block text-sm font-medium text-gray-700 mb-1">Ordenar por</label>
+            <select id="orden" name="orden"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+              <option value="fecha_desc" {% if orden_actual == 'fecha_desc' %}selected{% endif %}>Fecha (más recientes)</option>
+              <option value="fecha_asc" {% if orden_actual == 'fecha_asc' %}selected{% endif %}>Fecha (más antiguos)</option>
+              <option value="nombre_asc" {% if orden_actual == 'nombre_asc' %}selected{% endif %}>Nombre (A-Z)</option>
+              <option value="nombre_desc" {% if orden_actual == 'nombre_desc' %}selected{% endif %}>Nombre (Z-A)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-4">
+          <div class="flex flex-wrap gap-2">
+            <button type="submit" 
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              Buscar
+            </button>
+            <a href="{{ url_for('auth.listar_usuarios') }}" 
+               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Limpiar filtros
+            </a>
+          </div>
+          <div class="text-sm text-gray-500 mt-2 sm:mt-0">
+            Mostrando {{ usuarios|length }} de {{ total }} usuario{{ 's' if total != 1 else '' }}
+          </div>
+        </div>
+      </form>
+    </div>
+
+    {% if usuarios %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Apellido</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Estado</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Rol</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Fecha Creación</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for usuario in usuarios %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ usuario.nombre }}</td>
+            <td class="px-6 py-4 text-gray-500">{{ usuario.apellido }}</td>
+            <td class="px-6 py-4 text-gray-500">{{ usuario.email }}</td>
+            <td class="px-6 py-4">
+              {% with activo=usuario.activo, size='sm' %}
+                {% include 'components/usuario_badge_estado.html' %}
+              {% endwith %}
+            </td>
+            <td class="px-6 py-4 text-gray-500">{{ usuario.rol_descripcion }}</td>
+            <td class="px-6 py-4 text-gray-500">{{ usuario.fecha_hora_alta.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td class="px-6 py-4">
+              <div class="flex flex-wrap gap-2">
+                <a href="{{ url_for('auth.ver_usuario', id_usuario=usuario.id_usuario) }}"
+                   class="px-2 py-1 text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200">Ver</a>
+                 {% if usuario.rol and not usuario.es_admin %}
+                <a href="{{ url_for('auth.editar_usuario', id_usuario=usuario.id_usuario) }}"
+                   class="px-2 py-1 text-xs font-medium rounded text-yellow-700 bg-yellow-100 hover:bg-yellow-200">Editar</a>
+                 {% endif %}
+                {% if not usuario.es_admin %}
+                <form action="{{ url_for('auth.eliminar_usuario', id_usuario=usuario.id_usuario) }}" method="post" class="form-eliminar">
+                  <button type="button"
+                          class="btn-eliminar px-2 py-1 text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200"
+                          data-nombre="{{ usuario.nombre }} {{ usuario.apellido }}">
+                    Eliminar
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div id="modalEliminar" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Confirmar eliminación</h3>
+        <p id="modalMensaje" class="text-sm text-gray-600 mb-6">
+          ¿Seguro que deseas eliminar este usuario?
+        </p>
+        <div class="flex justify-end gap-3">
+          <button id="cancelarEliminar"
+                  class="px-4 py-2 text-sm font-medium bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+            Cancelar
+          </button>
+          <button id="confirmarEliminar"
+                  class="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {% if paginas > 1 %}
+    <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+      <div class="text-gray-700 text-center sm:text-left">
+        Página {{ pagina_actual }} de {{ paginas }} ({{ total }} usuario{{ 's' if total != 1 else '' }})
+      </div>
+      <nav class="flex flex-wrap justify-center sm:justify-end gap-2">
+        {% if tiene_anterior %}
+          <a href="{{ url_for('auth.listar_usuarios', pagina=pagina_actual-1, id_rol = filtro_id_rol, email=filtro_email, activo=filtro_activo, orden=orden_actual) }}"
+             class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50">Anterior</a>
+        {% else %}
+          <span class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 cursor-not-allowed">Anterior</span>
+        {% endif %}
+
+        {% for num in range(1, paginas + 1) %}
+          {% if num == pagina_actual %}
+            <span class="inline-flex items-center px-3 py-2 border border-blue-500 rounded-md bg-blue-50 text-blue-600 font-medium">{{ num }}</span>
+          {% else %}
+            <a href="{{ url_for('auth.listar_usuarios', pagina=num, id_rol = filtro_id_rol, email=filtro_email, activo=filtro_activo, orden=orden_actual ) }}"
+               class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if tiene_siguiente %}
+          <a href="{{ url_for('auth.listar_usuarios', pagina=pagina_actual+1, id_rol = filtro_id_rol, email=filtro_email, activo=filtro_activo, orden=orden_actual) }}"
+             class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50">Siguiente</a>
+        {% else %}
+          <span class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-400 cursor-not-allowed">Siguiente</span>
+        {% endif %}
+      </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-8">
+      <p class="text-gray-500 mb-4">No hay usuarios para mostrar.</p>
+      <a href="{{ url_for('auth.nuevo_usuario') }}" 
+         class="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        ➕ Crear usuario
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById("modalEliminar");
+  const mensaje = document.getElementById("modalMensaje");
+  const btnCancelar = document.getElementById("cancelarEliminar");
+  const btnConfirmar = document.getElementById("confirmarEliminar");
+  let formAEliminar = null;
+
+ 
+  document.querySelectorAll(".btn-eliminar").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const nombre = btn.dataset.nombre;
+      mensaje.textContent = `¿Seguro que deseas eliminar al usuario "${nombre}"?`;
+      formAEliminar = btn.closest(".form-eliminar");
+      modal.classList.remove("hidden");
+    });
+  });
+
+
+  btnCancelar.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    formAEliminar = null;
+  });
+
+
+  btnConfirmar.addEventListener("click", () => {
+    if (formAEliminar) formAEliminar.submit();
+  });
+
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Ver Usuario{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-8 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white rounded-lg shadow p-6 border border-gray-200">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
+      <div>
+        <h2 class="text-xl font-semibold text-[#001F3F]">Detalles del Usuario</h2>
+        <p class="text-sm text-gray-500 mt-1">Información completa del usuario</p>
+      </div>
+      <div class="flex flex-wrap gap-2 justify-end">
+        {% if usuario.rol and not usuario.es_admin  %}
+        <a href="{{ url_for('auth.editar_usuario', id_usuario=usuario.id_usuario,
+                           email=request.args.get('email', ''),
+                           activo=request.args.get('activo', ''),
+                           id_rol=request.args.get('id_rol', ''),
+                           orden=request.args.get('orden', ''),
+                           pagina=request.args.get('pagina', '')) }}" 
+           class="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          Editar
+        </a>
+        {% endif %}
+        <a href="{{ url_for('auth.listar_usuarios',
+                           email=request.args.get('email', ''),
+                           activo=request.args.get('activo', ''),
+                           id_rol=request.args.get('id_rol', ''),
+                           orden=request.args.get('orden', ''),
+                           pagina=request.args.get('pagina', '')) }}" 
+           class="inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Volver
+        </a>
+      </div>
+    </div>
+
+
+    <div class="space-y-6">
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Información Personal</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nombre</label>
+            <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded border">{{ usuario.nombre }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Apellido</label>
+            <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded border">{{ usuario.apellido }}</p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700">Email</label>
+          <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded border break-all">{{ usuario.email }}</p>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Estado y Permisos</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Estado</label>
+            <div class="mt-1">
+              {% with activo=usuario.activo, size='md' %}
+                {% include 'components/usuario_badge_estado.html' %}
+              {% endwith %}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Rol</label>
+            {% if usuario.rol %}
+              <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded border">{{ usuario.rol.descripcion }}</p>
+            {% else %}
+              <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded border">-</p> 
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Información del Sistema</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
+            <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded border">
+              {{ usuario.fecha_hora_alta.strftime('%d/%m/%Y a las %H:%M') }}
+            </p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Última Modificación</label>
+            <p class="mt-1 text-sm text-gray-900 bg-white px-3 py-2 rounded border">
+              {% if usuario.fecha_hora_modificacion %}
+                {{ usuario.fecha_hora_modificacion.strftime('%d/%m/%Y a las %H:%M') }}
+              {% else %}
+                <span class="text-gray-500 italic">Nunca modificado</span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t pt-6">
+        <div class="flex justify-end items-center flex-wrap gap-2">
+          {% if usuario.rol.es_bloqueable %}
+            {% if usuario.activo %}
+              <form action="{{ url_for('auth.bloquear_usuario', id_usuario=usuario.id_usuario) }}"
+                    method="post" class="form-bloquear">
+                <button type="button"
+                        class="btn-bloquear inline-flex items-center px-4 py-2 border border-red-600 rounded-md shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50">
+                  Bloquear Usuario
+                </button>
+              </form>
+            {% else %}
+              <form action="{{ url_for('auth.desbloquear_usuario', id_usuario=usuario.id_usuario) }}"
+                    method="post" class="form-desbloquear">
+                <button type="button"
+                        class="btn-desbloquear inline-flex items-center px-4 py-2 border border-red-600 rounded-md shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50">
+                  Desbloquear Usuario
+                </button>
+              </form>
+            {% endif %}
+          {% endif %}
+              
+          {% if not usuario.es_admin %}
+          <form action="{{ url_for('auth.eliminar_usuario', id_usuario=usuario.id_usuario) }}" 
+                method="post" class="form-eliminar">
+            <button type="button"
+                    class="btn-eliminar inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Eliminar Usuario
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modalEliminar" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-sm p-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Confirmar eliminación</h3>
+    <p class="text-sm text-gray-600 mb-6">¿Seguro que deseas eliminar este usuario? Esta acción no se puede deshacer.</p>
+    <div class="flex justify-end gap-3">
+      <button id="cancelarEliminar" class="px-4 py-2 text-sm font-medium bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+      <button id="confirmarEliminar" class="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalBloquear" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-sm p-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Confirmar bloqueo</h3>
+    <p class="text-sm text-gray-600 mb-6">¿Seguro que desea bloquear este usuario? No podrá volver a acceder al sistema.</p>
+    <div class="flex justify-end gap-3">
+      <button id="cancelarBloquear" class="px-4 py-2 text-sm font-medium bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+      <button id="confirmarBloquear" class="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalDesbloquear" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-sm p-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-2">Confirmar desbloqueo</h3>
+    <p class="text-sm text-gray-600 mb-6">¿Seguro que desea desbloquear este usuario? Podrá volver a acceder al sistema.</p>
+    <div class="flex justify-end gap-3">
+      <button id="cancelarDesbloquear" class="px-4 py-2 text-sm font-medium bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+      <button id="confirmarDesbloquear" class="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let formAEliminar = null;
+  let formABloquear = null;
+  let formADesbloquear = null;
+
+  const modalEliminar = document.getElementById("modalEliminar");
+  const modalBloquear = document.getElementById("modalBloquear");
+  const modalDesbloquear = document.getElementById("modalDesbloquear");
+
+  document.querySelectorAll(".btn-eliminar").forEach(btn => {
+    btn.addEventListener("click", () => {
+      formAEliminar = btn.closest(".form-eliminar");
+      modalEliminar.classList.remove("hidden");
+    });
+  });
+  document.getElementById("cancelarEliminar").addEventListener("click", () => {
+    modalEliminar.classList.add("hidden");
+    formAEliminar = null;
+  });
+  document.getElementById("confirmarEliminar").addEventListener("click", () => {
+    if (formAEliminar) formAEliminar.submit();
+  });
+
+  document.querySelectorAll(".btn-bloquear").forEach(btn => {
+    btn.addEventListener("click", () => {
+      formABloquear = btn.closest(".form-bloquear");
+      modalBloquear.classList.remove("hidden");
+    });
+  });
+  document.getElementById("cancelarBloquear").addEventListener("click", () => {
+    modalBloquear.classList.add("hidden");
+    formABloquear = null;
+  });
+  document.getElementById("confirmarBloquear").addEventListener("click", () => {
+    if (formABloquear) formABloquear.submit();
+  });
+
+  document.querySelectorAll(".btn-desbloquear").forEach(btn => {
+    btn.addEventListener("click", () => {
+      formADesbloquear = btn.closest(".form-desbloquear");
+      modalDesbloquear.classList.remove("hidden");
+    });
+  });
+  document.getElementById("cancelarDesbloquear").addEventListener("click", () => {
+    modalDesbloquear.classList.add("hidden");
+    formADesbloquear = null;
+  });
+  document.getElementById("confirmarDesbloquear").addEventListener("click", () => {
+    if (formADesbloquear) formADesbloquear.submit();
+  });
+
+  [modalEliminar, modalBloquear, modalDesbloquear].forEach(modal => {
+    modal.addEventListener("click", e => {
+      if (e.target === modal) modal.classList.add("hidden");
+    });
+  });
+</script>
+{% endblock %}
